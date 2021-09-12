@@ -1,15 +1,17 @@
 mod parser;
-mod tokenize;
+mod tokenizer;
+mod tokens;
 
 use parser::new_parser;
 use std::io::{self, Write};
 use std::panic;
-use tokenize::tokenize;
+use tokenizer::new_tokenize;
+// use tokenize::Tokenizer;
 
 fn eval(expression: String) -> i64 {
-    let tokens = tokenize(expression);
+    let tokenizer = new_tokenize(expression);
     // println!("tokens: {:?}", tokens);
-    let mut parser = new_parser(tokens);
+    let mut parser = new_parser(tokenizer);
     return parser.parse_expression();
 }
 
@@ -20,10 +22,11 @@ fn test_eval() {
 }
 
 fn main() {
+    eval("2 * (3  -4) + 5 - 6 * 7 ".to_string());
     panic::set_hook(Box::new(|err| println!("error: {:?}", err)));
     loop {
         print!("input the expression: ");
-        io::stdout().flush().expect("Flust Error!");
+        io::stdout().flush().expect("Flush Error!");
         let mut buf = String::new();
         io::stdin().read_line(&mut buf).ok().expect("Read Error!");
         let result = panic::catch_unwind(|| eval(buf.trim().to_string()));
