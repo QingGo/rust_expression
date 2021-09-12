@@ -5,7 +5,9 @@ use std::collections::HashMap;
 #[derive(Debug)]
 enum TokenizerState {
     InsideNumber,
-    Other,
+    Operator,
+    Parenthes,
+    Space,
 }
 
 #[derive(Debug)]
@@ -68,7 +70,7 @@ pub fn new_tokenize(expression: String) -> Box<dyn ITokenizer> {
         char_index: 0,
         tokens_map: tokens_map,
         last_token: None,
-        tokenizer_state: TokenizerState::Other,
+        tokenizer_state: TokenizerState::Space,
     };
     // println!("tokens: {:?}", tokenizer);
     Box::new(tokenizer)
@@ -97,7 +99,7 @@ impl Tokenizer {
                             token_type: TokenType::Number,
                             value: temp_value,
                         };
-                        self.tokenizer_state = TokenizerState::Other;
+                        self.tokenizer_state = TokenizerState::Space;
                         break;
                     } else {
                         self.char_index += 1;
@@ -105,33 +107,64 @@ impl Tokenizer {
                         temp_value.push(asc_letter);
                     }
                 }
-                TokenizerState::Other => match self.tokens_map.get(&asc_letter) {
-                    Some(_token) => {
-                        token = _token.clone();
-                        self.char_index += 1;
-                        break;
-                    }
-                    None => {
-                        self.char_index += 1;
-                        if asc_letter == ' ' {
-                            continue;
-                        }
-                        // 最后一位是数字的情况
-                        if self.char_index == self.expression.len() {
-                            temp_value.push(asc_letter);
-                            token = Token {
-                                token_type: TokenType::Number,
-                                value: temp_value,
-                            };
+                TokenizerState::Space | TokenizerState::Parenthes => {
+                    match self.tokens_map.get(&asc_letter) {
+                        Some(_token) => {
+                            if "()".contains(asc_letter) {
+                                self.tokenizer_state = TokenizerState::Parenthes;
+                            } else {
+                                self.tokenizer_state = TokenizerState::Operator;
+                            }
+                            token = _token.clone();
+                            self.char_index += 1;
                             break;
                         }
-                        self.tokenizer_state = TokenizerState::InsideNumber;
-                        temp_value.push(asc_letter);
+                        None => {
+                            self.char_index += 1;
+                            if asc_letter == ' ' {
+                                self.tokenizer_state = TokenizerState::Space;
+                                continue;
+                            }
+                            // 最后一位是数字的情况
+                            if self.char_index == self.expression.len() {
+                                temp_value.push(asc_letter);
+                                token = Token {
+                                    token_type: TokenType::Number,
+                                    value: temp_value,
+                                };
+                                break;
+                            }
+                            self.tokenizer_state = TokenizerState::InsideNumber;
+                            temp_value.push(asc_letter);
+                        }
                     }
-                },
+                }
+                TokenizerState::Operator => {
+                    self.char_index += 1;
+                    if "()".contains(asc_letter) {
+                        self.tokenizer_state = TokenizerState::Parenthes;
+                        token = self.tokens_map.get(&asc_letter).unwrap().clone();
+                        break;
+                    }
+                    if asc_letter == ' ' {
+                        self.tokenizer_state = TokenizerState::Space;
+                        continue;
+                    }
+                    // 最后一位是数字的情况
+                    if self.char_index == self.expression.len() {
+                        temp_value.push(asc_letter);
+                        token = Token {
+                            token_type: TokenType::Number,
+                            value: temp_value,
+                        };
+                        break;
+                    }
+                    self.tokenizer_state = TokenizerState::InsideNumber;
+                    temp_value.push(asc_letter);
+                }
             }
         }
-        // println!("token {:?} {}", token, self.char_index);
+        println!("token {:?} {}", token, self.char_index);
         token
     }
 }

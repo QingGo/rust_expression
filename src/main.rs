@@ -20,10 +20,11 @@ fn test_eval() {
     assert_eq!(eval("2 * (3  -4) + 5 - 6 * 7 ".to_string()), -39);
     assert_eq!(eval("9 +(3 - 1) * 3 + 10 / 2".to_string()), 20);
     assert_eq!(eval("2 * (3  -4) + 5 - 6 * 72".to_string()), -429);
+    assert_eq!(eval("  1 *-2*3+789  ".to_string()), 783);
 }
 
 fn main() {
-    eval("2 * (3  -4) + 5 - 6 * 72".to_string());
+    // eval("2 * (3  -4) + 5 - 6 * 72".to_string());
     panic::set_hook(Box::new(|err| println!("error: {:?}", err)));
     loop {
         print!("input the expression: ");

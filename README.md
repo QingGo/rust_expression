@@ -1,4 +1,4 @@
-用 Rust 实现正整数的带括号四则运算：
+用 Rust 实现整数的带括号四则运算：
 ![](./diagram/screenshot.png)
 四则运算的 EBNF 定义如下：
 ``` ebnf
