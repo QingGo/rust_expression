@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenType {
     Number,
     LeftParenthes,
@@ -9,7 +9,7 @@ pub enum TokenType {
     Divide,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub value: String,

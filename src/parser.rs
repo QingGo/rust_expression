@@ -3,8 +3,8 @@ use std::panic;
 
 pub trait ITokenizer {
     fn has_token(&self) -> bool;
-    fn pop(&mut self) -> &Token;
-    fn seek(&self) -> &Token;
+    fn pop(&mut self) -> Token;
+    fn seek(&mut self) -> Token;
 }
 
 pub struct Parser {
